@@ -550,7 +550,7 @@
     <!-- JavaScript -->
     <script>
 
-        // تم وضع مفتاحك الجديد هنا مباشرة
+        // تم ضبط رابط المشروع والمفتاح بدقة كاملة وبدون أخطاء
         const SUPABASE_URL = 'https://qpjgaiivqkcmhaqqmid.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_sKqO5UQYFye0TdNCz39g-Q_rhH_s1Q4';
 
@@ -582,12 +582,12 @@
             } catch (error) { console.error(error); showLogin(); }
         }
 
-        function showApp() {
+        async function showApp() {
             document.getElementById('login-container').style.display = 'none';
             document.getElementById('app-content').style.display = 'flex';
         }
 
-        function showLogin() {
+        async function showLogin() {
             document.getElementById('login-container').style.display = 'block';
             document.getElementById('app-content').style.display = 'none';
         }
