@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width,
+                   initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no">
+
+    <title>Anime KEL - أنمي كيل</title>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        /* =====================================================
+           الأساسيات
+        ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family:
+                "Segoe UI",
+                Tahoma,
+                Geneva,
+                Verdana,
+                sans-serif;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            background: #05010b;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 15px;
+        }
+
+
+        /* =====================================================
+           الخلفية
+        ===================================================== */
+
+        .background {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            background: #05010b;
+        }
+
+        .background img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 42% center;
+            transform: scale(1.01);
+            user-select: none;
+            pointer-events: none;
+            filter: saturate(1.08) contrast(1.05);
+        }
+
+
+        /* =====================================================
+           طبقات الإضاءة فوق الخلفية
+        ===================================================== */
+
+        .background::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(3, 0, 8, 0.18),
+                    rgba(8, 1, 18, 0.08),
+                    rgba(3, 0, 8, 0.62)
+                );
+            pointer-events: none;
+        }
+
+        .dark-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                radial-gradient(
+                    circle at 50% 45%,
+                    rgba(126, 34, 206, 0.08),
+                    transparent 50%
+                ),
+                linear-gradient(
+                    180deg,
+                    rgba(3, 0, 8, 0.12),
+                    rgba(3, 0, 8, 0.42)
+                );
+        }
+
+
+        /* =====================================================
+           إضاءة بنفسجية جانبية
+        ===================================================== */
+
+        .purple-light {
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: rgba(168, 85, 247, 0.14);
+            filter: blur(100px);
+            z-index: 1;
+            pointer-events: none;
+            top: -150px;
+            right: -120px;
+        }
+
+        .purple-light-two {
+            position: fixed;
+            width: 350px;
+            height: 350px;
+            border-radius: 50%;
+            background: rgba(88, 28, 135, 0.14);
+            filter: blur(100px);
+            z-index: 1;
+            pointer-events: none;
+            bottom: -130px;
+            left: -100px;
+        }
+
+
+        /* =====================================================
+           شاشة تسجيل الدخول
+        ===================================================== */
+
+        #login-container {
+            position: relative;
+            z-index: 5;
+            width: min(92%, 430px);
+            margin: 20px auto;
+            padding: 34px 28px 30px;
+            text-align: center;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(20, 7, 35, 0.78),
+                    rgba(8, 3, 17, 0.72)
+                );
+            border: 1px solid rgba(196, 112, 255, 0.55);
+            border-radius: 28px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow:
+                0 20px 70px rgba(0, 0, 0, 0.55),
+                0 0 35px rgba(139, 92, 246, 0.22),
+                inset 0 0 25px rgba(168, 85, 247, 0.08);
+            animation: loginAppear 0.8s ease;
+        }
+
+        #login-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 12%;
+            right: 12%;
+            height: 2px;
+            border-radius: 50%;
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    #c084fc,
+                    #a855f7,
+                    #c084fc,
+                    transparent
+                );
+            box-shadow: 0 0 15px #a855f7;
+        }
+
+
+        /* =====================================================
+           شعار Anime KEL
+        ===================================================== */
+
+        .brand {
+            margin-bottom: 12px;
+            font-size: clamp(2.1rem, 8vw, 3.1rem);
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow:
+                0 0 8px rgba(255,255,255,0.5),
+                0 0 18px rgba(168,85,247,0.9),
+                0 0 38px rgba(126,34,206,0.8);
+        }
+
+        .brand span {
+            color: #c084fc;
+        }
+
+        .welcome {
+            color: #ddd0ef;
+            font-size: clamp(0.88rem, 3.5vw, 1.05rem);
+            line-height: 1.8;
+            margin-bottom: 28px;
+        }
+
+
+        /* =====================================================
+           فاصل زخرفي
+        ===================================================== */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            color: #b56cff;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            flex: 1;
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(192,132,252,0.5)
+                );
+        }
+
+        .divider::after {
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(192,132,252,0.5),
+                    transparent
+                );
+        }
+
+
+        /* =====================================================
+           زر Google
+        ===================================================== */
+
+        .google-btn {
+            width: 100%;
+            min-height: 56px;
+            padding: 13px 18px;
+            border: 1px solid rgba(216,180,254,0.65);
+            border-radius: 16px;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(126,34,206,0.95),
+                    rgba(76,29,149,0.95)
+                );
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 11px;
+            box-shadow:
+                0 8px 25px rgba(88,28,135,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.18);
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                filter 0.25s ease;
+        }
+
+        .google-btn svg {
+            width: 21px;
+            height: 21px;
+            flex-shrink: 0;
+        }
+
+        .google-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.12);
+            box-shadow:
+                0 12px 35px rgba(139,92,246,0.55),
+                0 0 20px rgba(168,85,247,0.25);
+        }
+
+        .google-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-note {
+            margin-top: 18px;
+            color: rgba(226, 211, 240, 0.65);
+            font-size: 0.75rem;
+            line-height: 1.7;
+        }
+
+
+        @keyframes loginAppear {
+            from {
+                opacity: 0;
+                transform: translateY(25px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+
+        /* =====================================================
+           واجهة الموقع بعد الدخول
+        ===================================================== */
+
+        #app-content {
+            display: none;
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            max-width: 900px;
+            min-height: 100vh;
+            margin: auto;
+            padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 14px 18px;
+            background: rgba(12, 4, 22, 0.78);
+            border: 1px solid rgba(168,85,247,0.45);
+            border-radius: 18px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow:
+                0 10px 35px rgba(0,0,0,0.35),
+                0 0 20px rgba(139,92,246,0.14);
+        }
+
+        .app-logo {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 12px rgba(168,85,247,0.9);
+        }
+
+        .logout-btn {
+            border: 1px solid rgba(248,113,113,0.35);
+            background: rgba(127,29,29,0.75);
+            color: #fff;
+            padding: 9px 15px;
+            border-radius: 11px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            font-weight: 700;
+            transition: 0.25s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(185,28,28,0.9);
+            box-shadow: 0 0 15px rgba(239,68,68,0.35);
+        }
+
+        .page-view {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .page-view h2 {
+            font-size: clamp(1.8rem, 7vw, 3.5rem);
+            color: #d8b4fe;
+            text-shadow: 0 0 20px rgba(168,85,247,0.75);
+            background: rgba(12,4,22,0.72);
+            padding: 20px 28px;
+            border-radius: 20px;
+            border: 1px dashed rgba(192,132,252,0.6);
+            backdrop-filter: blur(10px);
+            animation: pulse 1.7s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.025); }
+            100% { transform: scale(1); }
+        }
+
+        .navbar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 5px;
+            padding: 9px 7px;
+            background: rgba(10,3,18,0.86);
+            border: 1px solid rgba(168,85,247,0.48);
+            border-radius: 20px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow:
+                0 10px 35px rgba(0,0,0,0.4),
+                0 0 25px rgba(139,92,246,0.18);
+        }
+
+        .nav-item {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            color: #bda9d1;
+            padding: 11px 8px;
+            border-radius: 13px;
+            cursor: pointer;
+            font-size: clamp(0.72rem, 2.5vw, 0.95rem);
+            font-weight: 800;
+            transition: background 0.25s, color 0.25s, transform 0.25s;
+        }
+
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(168,85,247,0.13);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(126,34,206,0.45),
+                    rgba(168,85,247,0.18)
+                );
+            box-shadow: 0 0 15px rgba(168,85,247,0.2);
+            text-shadow: 0 0 10px #c084fc;
+        }
+
+
+        /* =====================================================
+           التجاوب مع الشاشات
+        ===================================================== */
+
+        @media (max-width: 600px) {
+            body { min-height: 100svh; }
+            .background img { object-position: 36% center; transform: scale(1.04); }
+            #login-container { width: calc(100% - 28px); padding: 30px 20px 25px; border-radius: 24px; }
+            .brand { font-size: 2.2rem; margin-bottom: 8px; }
+            .welcome { font-size: 0.9rem; margin-bottom: 22px; }
+            .google-btn { min-height: 54px; font-size: 0.92rem; }
+            #app-content { padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
+        }
+
+        @media (min-width: 1000px) {
+            .background img { object-position: 40% center; transform: scale(1.01); }
+            #login-container { margin-right: 8%; margin-left: auto; }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+    <div class="background">
+        <img src="https://i.ibb.co/RkvbkTFq/file-00000000024481f49f8ca2a5ec464909.png" alt="Anime KEL Background">
+    </div>
+
+    <div class="dark-overlay"></div>
+    <div class="purple-light"></div>
+    <div class="purple-light-two"></div>
+
+
+    <!-- تسجيل الدخول -->
+    <div id="login-container">
+        <h1 class="brand">ANIME <span>KEL</span></h1>
+        <p class="welcome">
+            مرحباً بك في عالم الأنمي ✨
+            <br>
+            سجّل دخولك واستمتع بعالم Anime KEL
+        </p>
+
+        <div class="divider">
+            <span>تسجيل الدخول</span>
+        </div>
+
+        <button class="google-btn" onclick="loginWithGoogle()">
+            <svg width="21" height="21" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#fff" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5zm6.5 7c0-.4-.1-.9-.2-1.3H12v2.6h3.6c-.2 1-.8 1.8-1.7 2.4l2.7 2.1c1.6-1.5 2.6-3.7 2.6-6.8zM5.3 14.8c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2L1.6 7.9C.6 9.9 0 12.1 0 14.5s.6 4.6 1.6 6.6l3.7-2.9c-.3-.9-.5-2-.5-3.4zm6.7 8.2c3.2 0 6-1.1 8-3l-2.7-2.1c-1.1.7-2.5 1.2-5.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.9C3.5 20.4 7.4 23 12 23z"/>
+            </svg>
+            <span>تسجيل الدخول بواسطة جوجل</span>
+        </button>
+
+        <p class="login-note">تسجيل الدخول متاح بواسطة حساب Google فقط.</p>
+    </div>
+
+
+    <!-- واجهة الموقع بعد تسجيل الدخول -->
+    <div id="app-content">
+        <div class="top-bar">
+            <span class="app-logo">ANIME KEL</span>
+            <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
+        </div>
+
+        <div class="page-view">
+            <h2 id="page-title">قيد البرمجه....🚧</h2>
+        </div>
+
+        <nav class="navbar">
+            <button class="nav-item active" onclick="switchPage('الرئيسي', this)">الرئيسي</button>
+            <button class="nav-item" onclick="switchPage('المشاهدة', this)">المشاهدة</button>
+            <button class="nav-item" onclick="switchPage('النجوم', this)">النجوم</button>
+            <button class="nav-item" onclick="switchPage('الملف الشخصي', this)">الملف الشخصي</button>
+        </nav>
+    </div>
+
+
+    <!-- JavaScript -->
+    <script>
+
+        // تم وضع مفتاحك الجديد هنا مباشرة
+        const SUPABASE_URL = 'https://qpjgaiivqkcmhaqqmid.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_sKqO5UQYFye0TdNCz39g-Q_rhH_s1Q4';
+
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function checkUser() {
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (error) { console.error(error); showLogin(); return; }
+                if (session) { showApp(); } else { showLogin(); }
+            } catch (error) { console.error(error); showLogin(); }
+        }
+
+        async function loginWithGoogle() {
+            try {
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: { redirectTo: window.location.origin }
+                });
+                if (error) { alert('حدث خطأ أثناء تسجيل الدخول:\n' + error.message); }
+            } catch (error) { console.error(error); alert('حدث خطأ غير متوقع.'); }
+        }
+
+        async function logout() {
+            try {
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) { alert('حدث خطأ أثناء تسجيل الخروج:\n' + error.message); return; }
+                showLogin();
+            } catch (error) { console.error(error); showLogin(); }
+        }
+
+        function showApp() {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('app-content').style.display = 'flex';
+        }
+
+        function showLogin() {
+            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('app-content').style.display = 'none';
+        }
+
+        function switchPage(pageName, element) {
+            document.getElementById('page-title').innerText = 'قيد البرمجه....🚧';
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (session) { showApp(); } else { showLogin(); }
+        });
+
+        checkUser();
+
+    </script>
+
+</body>
+</html>
