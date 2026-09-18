@@ -1,2242 +1,692 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no">
-
-<title>Anime KEL - أنمي كيل</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-
-/* =====================================================
-   RESET
-===================================================== */
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
-
-html,
-body{
-    width:100%;
-    min-height:100%;
-}
-
-body{
-    font-family:
-        "Segoe UI",
-        Tahoma,
-        Arial,
-        sans-serif;
-
-    background:#05010a;
-    color:#fff;
-
-    overflow-x:hidden;
-
-    min-height:100vh;
-    min-height:100svh;
-}
-
-
-/* =====================================================
-   الخلفية
-===================================================== */
-
-.background{
-    position:fixed;
-    inset:0;
-
-    width:100%;
-    height:100%;
-
-    z-index:-10;
-
-    overflow:hidden;
-
-    background:#05010a;
-}
-
-.background img{
-    position:absolute;
-    inset:0;
-
-    width:100%;
-    height:100%;
-
-    object-fit:cover;
-
-    object-position:center center;
-
-    transform:scale(1.03);
-
-    user-select:none;
-    pointer-events:none;
-
-    filter:
-        saturate(1.12)
-        contrast(1.08);
-}
-
-.background::after{
-    content:"";
-
-    position:absolute;
-    inset:0;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(3,0,9,.25) 0%,
-            rgba(5,0,12,.15) 35%,
-            rgba(3,0,8,.42) 70%,
-            rgba(2,0,7,.84) 100%
-        );
-
-    pointer-events:none;
-}
-
-
-/* =====================================================
-   الإضاءة
-===================================================== */
-
-.glow-one{
-    position:fixed;
-
-    width:360px;
-    height:360px;
-
-    border-radius:50%;
-
-    top:-180px;
-    right:-120px;
-
-    background:rgba(168,85,247,.20);
-
-    filter:blur(100px);
-
-    z-index:-5;
-
-    pointer-events:none;
-}
-
-.glow-two{
-    position:fixed;
-
-    width:330px;
-    height:330px;
-
-    border-radius:50%;
-
-    bottom:-160px;
-    left:-120px;
-
-    background:rgba(126,34,206,.18);
-
-    filter:blur(100px);
-
-    z-index:-5;
-
-    pointer-events:none;
-}
-
-
-/* =====================================================
-   تسجيل الدخول
-===================================================== */
-
-#login-container{
-
-    width:min(
-        calc(100% - 30px),
-        430px
-    );
-
-    position:fixed;
-
-    top:50%;
-    left:50%;
-
-    transform:
-        translate(-50%,-50%);
-
-    z-index:100;
-
-    padding:
-        32px
-        24px
-        27px;
-
-    border-radius:26px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(22,7,38,.90),
-            rgba(7,2,15,.86)
-        );
-
-    border:
-        1px solid
-        rgba(192,132,252,.55);
-
-    box-shadow:
-        0 25px 80px rgba(0,0,0,.65),
-        0 0 35px rgba(168,85,247,.20),
-        inset 0 0 25px rgba(168,85,247,.07);
-
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-
-    text-align:center;
-
-    animation:
-        loginAppear .7s ease;
-}
-
-#login-container::before{
-
-    content:"";
-
-    position:absolute;
-
-    top:0;
-
-    left:14%;
-    right:14%;
-
-    height:2px;
-
-    border-radius:50%;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            #c084fc,
-            #a855f7,
-            #c084fc,
-            transparent
-        );
-
-    box-shadow:
-        0 0 16px #a855f7;
-}
-
-
-/* =====================================================
-   شعار تسجيل الدخول
-===================================================== */
-
-.brand{
-
-    font-size:
-        clamp(
-            2.2rem,
-            10vw,
-            3.1rem
-        );
-
-    font-weight:900;
-
-    letter-spacing:2px;
-
-    margin-bottom:8px;
-
-    color:#fff;
-
-    text-shadow:
-        0 0 8px rgba(255,255,255,.45),
-        0 0 20px rgba(168,85,247,.9),
-        0 0 40px rgba(126,34,206,.7);
-}
-
-.brand span{
-    color:#c084fc;
-}
-
-.welcome{
-
-    color:#ded2e9;
-
-    font-size:.92rem;
-
-    line-height:1.8;
-
-    margin-bottom:25px;
-}
-
-
-/* =====================================================
-   الفاصل
-===================================================== */
-
-.divider{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    color:#c084fc;
-
-    font-size:.82rem;
-
-    margin-bottom:20px;
-}
-
-.divider::before,
-.divider::after{
-
-    content:"";
-
-    height:1px;
-
-    flex:1;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(192,132,252,.5)
-        );
-}
-
-.divider::after{
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(192,132,252,.5),
-            transparent
-        );
-}
-
-
-/* =====================================================
-   زر Google
-===================================================== */
-
-.google-btn{
-
-    width:100%;
-
-    min-height:56px;
-
-    border-radius:15px;
-
-    border:
-        1px solid
-        rgba(216,180,254,.55);
-
-    background:
-        linear-gradient(
-            135deg,
-            #7e22ce,
-            #581c87
-        );
-
-    color:#fff;
-
-    font-size:.95rem;
-
-    font-weight:800;
-
-    cursor:pointer;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:11px;
-
-    box-shadow:
-        0 10px 30px rgba(88,28,135,.45),
-        inset 0 1px 0 rgba(255,255,255,.18);
-
-    transition:.25s ease;
-}
-
-.google-btn:hover{
-
-    filter:brightness(1.12);
-
-    transform:translateY(-2px);
-}
-
-.google-btn:active{
-    transform:scale(.98);
-}
-
-.google-btn:disabled{
-
-    opacity:.6;
-
-    cursor:not-allowed;
-
-    transform:none;
-}
-
-.google-btn svg{
-
-    width:22px;
-    height:22px;
-
-    flex-shrink:0;
-}
-
-.login-note{
-
-    margin-top:15px;
-
-    color:
-        rgba(226,211,240,.58);
-
-    font-size:.72rem;
-
-    line-height:1.7;
-}
-
-
-/* =====================================================
-   الخطأ
-===================================================== */
-
-#error-box{
-
-    display:none;
-
-    margin-top:14px;
-
-    padding:11px;
-
-    border-radius:12px;
-
-    background:
-        rgba(127,29,29,.35);
-
-    border:
-        1px solid
-        rgba(248,113,113,.4);
-
-    color:#fecaca;
-
-    font-size:.76rem;
-
-    line-height:1.7;
-
-    white-space:pre-line;
-}
-
-
-/* =====================================================
-   نافذة إنشاء كلمة المرور الإجبارية
-===================================================== */
-
-#passwordSetupModal{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(5,1,13,0.92);
-    z-index:999;
-    justify-content:center;
-    align-items:center;
-    backdrop-filter:blur(12px);
-}
-
-.modal-box{
-    width:min(calc(100% - 30px), 420px);
-    padding:30px 24px;
-    border-radius:24px;
-    background:linear-gradient(145deg, rgba(22,7,38,.95), rgba(7,2,15,.95));
-    border:1px solid rgba(192,132,252,.6);
-    box-shadow:0 25px 80px rgba(0,0,0,.8), 0 0 40px rgba(168,85,247,.3);
-    text-align:center;
-}
-
-.modal-box h3{
-    color:#e5c9ff;
-    font-size:1.5rem;
-    margin-bottom:10px;
-}
-
-.modal-box p{
-    color:#ded2e9;
-    font-size:0.88rem;
-    line-height:1.6;
-    margin-bottom:20px;
-}
-
-.modal-input{
-    width:100%;
-    padding:14px;
-    border-radius:12px;
-    border:1px solid rgba(192,132,252,.4);
-    background:rgba(15,5,28,.9);
-    color:#fff;
-    font-size:0.95rem;
-    outline:none;
-    margin-bottom:15px;
-    text-align:center;
-}
-
-.modal-input:focus{
-    border-color:#c084fc;
-    box-shadow:0 0 10px rgba(168,85,247,.4);
-}
-
-.modal-btn{
-    width:100%;
-    min-height:50px;
-    border-radius:12px;
-    border:none;
-    background:linear-gradient(135deg, #7e22ce, #581c87);
-    color:#fff;
-    font-weight:800;
-    font-size:0.95rem;
-    cursor:pointer;
-    box-shadow:0 8px 25px rgba(88,28,135,.5);
-    transition:.25s ease;
-}
-
-.modal-btn:hover{
-    filter:brightness(1.1);
-}
-
-#modal-error{
-    display:none;
-    margin-top:12px;
-    padding:10px;
-    border-radius:10px;
-    background:rgba(127,29,29,.4);
-    border:1px solid rgba(248,113,113,.4);
-    color:#fecaca;
-    font-size:0.78rem;
-}
-
-
-/* =====================================================
-   التطبيق
-===================================================== */
-
-#app-content{
-
-    display:none;
-
-    position:relative;
-
-    width:100%;
-
-    min-height:100vh;
-    min-height:100svh;
-
-    flex-direction:column;
-
-    overflow:hidden;
-}
-
-
-/* =====================================================
-   الهيدر
-===================================================== */
-
-.top-bar{
-
-    position:relative;
-
-    z-index:10;
-
-    width:
-        calc(100% - 24px);
-
-    margin:
-        12px auto 0;
-
-    min-height:60px;
-
-    padding:
-        10px 13px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    gap:10px;
-
-    border-radius:20px;
-
-    background:
-        rgba(8,2,17,.68);
-
-    border:
-        1px solid
-        rgba(168,85,247,.42);
-
-    box-shadow:
-        0 8px 30px rgba(0,0,0,.3),
-        0 0 20px rgba(139,92,246,.10);
-
-    backdrop-filter:blur(16px);
-    -webkit-backdrop-filter:blur(16px);
-}
-
-
-/* =====================================================
-   شعار الهيدر
-===================================================== */
-
-.app-logo{
-
-    font-size:
-        clamp(
-            1rem,
-            5vw,
-            1.35rem
-        );
-
-    font-weight:900;
-
-    letter-spacing:1px;
-
-    color:#fff;
-
-    text-shadow:
-        0 0 8px rgba(255,255,255,.3),
-        0 0 18px rgba(168,85,247,.8);
-
-    white-space:nowrap;
-}
-
-.app-logo span{
-    color:#c084fc;
-}
-
-
-/* =====================================================
-   تسجيل الخروج
-===================================================== */
-
-.logout-btn{
-
-    border:
-        1px solid
-        rgba(248,113,113,.38);
-
-    background:
-        rgba(127,29,29,.72);
-
-    color:#fff;
-
-    min-height:39px;
-
-    padding:
-        0 14px;
-
-    border-radius:12px;
-
-    cursor:pointer;
-
-    font-size:.78rem;
-
-    font-weight:800;
-
-    transition:.25s ease;
-
-    white-space:nowrap;
-}
-
-.logout-btn:active{
-    transform:scale(.96);
-}
-
-.logout-btn:hover{
-
-    background:
-        rgba(185,28,28,.9);
-
-    box-shadow:
-        0 0 15px
-        rgba(239,68,68,.3);
-}
-
-
-/* =====================================================
-   محتوى الصفحة
-===================================================== */
-
-.page-view{
-
-    position:relative;
-
-    z-index:2;
-
-    flex:1;
-
-    width:100%;
-
-    min-height:0;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    padding:
-        25px
-        20px
-        135px;
-
-    text-align:center;
-}
-
-
-/* =====================================================
-   صندوق الصفحة
-===================================================== */
-
-.page-box{
-
-    width:
-        min(
-            92%,
-            520px
-        );
-
-    padding:
-        30px
-        20px;
-
-    border-radius:25px;
-
-    background:
-        rgba(8,2,18,.52);
-
-    border:
-        1px dashed
-        rgba(192,132,252,.65);
-
-    box-shadow:
-        0 20px 60px rgba(0,0,0,.4),
-        0 0 30px rgba(168,85,247,.12);
-
-    backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
-
-    animation:
-        boxFloat 2.5s ease-in-out infinite;
-}
-
-.page-icon{
-
-    font-size:
-        clamp(
-            2.5rem,
-            12vw,
-            4rem
-        );
-
-    margin-bottom:8px;
-
-    filter:
-        drop-shadow(
-            0 0 10px
-            rgba(255,190,0,.35)
-        );
-}
-
-.page-title{
-
-    font-size:
-        clamp(
-            1.65rem,
-            8vw,
-            2.8rem
-        );
-
-    font-weight:900;
-
-    color:#e5c9ff;
-
-    text-shadow:
-        0 0 10px rgba(168,85,247,.7),
-        0 0 25px rgba(126,34,206,.45);
-
-    line-height:1.4;
-}
-
-.page-subtitle{
-
-    margin-top:8px;
-
-    color:
-        rgba(235,220,248,.58);
-
-    font-size:.8rem;
-}
-
-
-/* =====================================================
-   القائمة السفلية
-===================================================== */
-
-.navbar{
-
-    position:fixed;
-
-    z-index:90;
-
-    bottom:
-        calc(
-            10px +
-            env(safe-area-inset-bottom)
-        );
-
-    left:50%;
-
-    transform:
-        translateX(-50%);
-
-    width:
-        calc(100% - 20px);
-
-    max-width:720px;
-
-    min-height:88px;
-
-    padding:
-        8px;
-
-    display:flex;
-
-    align-items:stretch;
-
-    justify-content:space-between;
-
-    direction:rtl;
-
-    gap:5px;
-
-    border-radius:25px;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(10,3,21,.94),
-            rgba(5,1,13,.97)
-        );
-
-    border:
-        1px solid
-        rgba(168,85,247,.60);
-
-    box-shadow:
-        0 15px 45px rgba(0,0,0,.62),
-        0 0 30px rgba(139,92,246,.18),
-        inset 0 1px 0 rgba(255,255,255,.05);
-
-    backdrop-filter:blur(20px);
-    -webkit-backdrop-filter:blur(20px);
-}
-
-
-/* =====================================================
-   أزرار القائمة
-===================================================== */
-
-.nav-item{
-
-    position:relative;
-
-    flex:1 1 0;
-
-    min-width:0;
-
-    min-height:70px;
-
-    padding:
-        7px 3px;
-
-    border:none;
-
-    border-radius:18px;
-
-    background:transparent;
-
-    color:#b9acc4;
-
-    cursor:pointer;
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:5px;
-
-    transition:
-        background .25s ease,
-        color .25s ease,
-        transform .2s ease;
-
-    font-family:inherit;
-
-    outline:none;
-}
-
-
-/* =====================================================
-   أيقونات القائمة
-===================================================== */
-
-.nav-item svg{
-
-    width:27px;
-
-    height:27px;
-
-    stroke:currentColor;
-
-    fill:none;
-
-    stroke-width:1.9;
-
-    stroke-linecap:round;
-
-    stroke-linejoin:round;
-
-    flex-shrink:0;
-
-    transition:.25s ease;
-}
-
-
-/* =====================================================
-   نص القائمة
-===================================================== */
-
-.nav-item span{
-
-    display:block;
-
-    width:100%;
-
-    text-align:center;
-
-    font-size:
-        clamp(
-            .61rem,
-            2.7vw,
-            .76rem
-        );
-
-    font-weight:800;
-
-    line-height:1.25;
-
-    white-space:nowrap;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    transition:.25s ease;
-}
-
-
-/* =====================================================
-   الضغط
-===================================================== */
-
-.nav-item:active{
-
-    transform:
-        scale(.94);
-}
-
-
-/* =====================================================
-   Hover
-===================================================== */
-
-.nav-item:hover{
-
-    color:#fff;
-
-    background:
-        rgba(168,85,247,.10);
-}
-
-
-/* =====================================================
-   الزر النشط
-===================================================== */
-
-.nav-item.active{
-
-    color:#fff;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(126,34,206,.62),
-            rgba(168,85,247,.23)
-        );
-
-    box-shadow:
-        0 0 22px rgba(168,85,247,.22),
-        inset 0 0 18px rgba(192,132,252,.08);
-}
-
-.nav-item.active svg{
-
-    color:#d8b4fe;
-
-    stroke:#d8b4fe;
-
-    filter:
-        drop-shadow(
-            0 0 7px
-            rgba(192,132,252,.9)
-        );
-
-    transform:
-        translateY(-1px)
-        scale(1.05);
-}
-
-.nav-item.active span{
-
-    color:#fff;
-
-    text-shadow:
-        0 0 8px
-        rgba(192,132,252,.8);
-}
-
-
-/* الخط السفلي */
-
-.nav-item.active::after{
-
-    content:"";
-
-    position:absolute;
-
-    bottom:4px;
-
-    left:27%;
-
-    right:27%;
-
-    height:2px;
-
-    border-radius:50%;
-
-    background:#c084fc;
-
-    box-shadow:
-        0 0 10px
-        #a855f7;
-}
-
-
-/* =====================================================
-   الحركات
-===================================================== */
-
-@keyframes loginAppear{
-
-    from{
-        opacity:0;
-
-        transform:
-            translate(-50%,-46%)
-            scale(.96);
-    }
-
-    to{
-        opacity:1;
-
-        transform:
-            translate(-50%,-50%)
-            scale(1);
-    }
-}
-
-@keyframes boxFloat{
-
-    0%,
-    100%{
-        transform:
-            translateY(0);
-    }
-
-    50%{
-        transform:
-            translateY(-5px);
-    }
-}
-
-
-/* =====================================================
-   الهاتف الصغير
-===================================================== */
-
-@media(max-width:380px){
-
-    #login-container{
-
-        padding:
-            27px
-            18px
-            23px;
-
-        border-radius:22px;
-    }
-
-    .welcome{
-        font-size:.82rem;
-    }
-
-    .google-btn{
-
-        min-height:52px;
-
-        font-size:.84rem;
-    }
-
-    .navbar{
-
-        width:
-            calc(100% - 12px);
-
-        bottom:
-            calc(
-                6px +
-                env(safe-area-inset-bottom)
-            );
-
-        min-height:78px;
-
-        padding:5px;
-
-        border-radius:21px;
-
-        gap:2px;
-    }
-
-    .nav-item{
-
-        min-height:64px;
-
-        border-radius:15px;
-
-        gap:3px;
-
-        padding:
-            5px 2px;
-    }
-
-    .nav-item svg{
-
-        width:23px;
-        height:23px;
-    }
-
-    .nav-item span{
-
-        font-size:.53rem;
-    }
-
-    .nav-item.active::after{
-
-        bottom:3px;
-
-        left:25%;
-        right:25%;
-    }
-
-    .page-view{
-
-        padding:
-            20px
-            14px
-            120px;
-    }
-
-    .page-box{
-
-        padding:
-            25px
-            15px;
-    }
-}
-
-
-/* =====================================================
-   الهاتف العادي
-===================================================== */
-
-@media(min-width:381px) and (max-width:600px){
-
-    .background img{
-
-        object-position:
-            48% center;
-
-        transform:
-            scale(1.045);
-    }
-
-    .top-bar{
-
-        margin-top:10px;
-
-        width:
-            calc(100% - 18px);
-    }
-
-    .navbar{
-
-        width:
-            calc(100% - 18px);
-    }
-}
-
-
-/* =====================================================
-   الأجهزة الطويلة
-===================================================== */
-
-@media(min-height:800px) and (max-width:600px){
-
-    .navbar{
-
-        min-height:88px;
-
-        padding:8px 7px;
-    }
-
-    .nav-item{
-
-        min-height:70px;
-    }
-
-    .nav-item svg{
-
-        width:28px;
-        height:28px;
-    }
-}
-
-
-/* =====================================================
-   الكمبيوتر
-===================================================== */
-
-@media(min-width:900px){
-
-    .background img{
-
-        object-position:center center;
-    }
-
-    .page-view{
-
-        padding-bottom:135px;
-    }
-
-    .navbar{
-
-        min-height:90px;
-
-        padding:
-            9px 10px;
-    }
-
-    .nav-item{
-
-        min-height:70px;
-    }
-
-    .nav-item svg{
-
-        width:28px;
-        height:28px;
-    }
-
-    .nav-item span{
-
-        font-size:.78rem;
-    }
-}
-
-
-/* =====================================================
-   تقليل الحركة
-===================================================== */
-
-@media(prefers-reduced-motion:reduce){
-
-    *{
-        animation:none !important;
-        transition:none !important;
-    }
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة صانع وتثبيت تطبيقات النيون</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #08070b;
+            --surface-color: #121019;
+            --surface-hover: #1c1826;
+            --primary-color: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --accent-glow: rgba(139, 92, 246, 0.25);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: #262138;
+            --nav-height: 70px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: calc(var(--nav-height) + 25px);
+        }
+
+        header {
+            background: rgba(18, 16, 25, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 16px 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #c4b5fd;
+            text-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-form {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label.title-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 160px;
+            font-family: monospace;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .mode-switcher {
+            display: flex;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 10px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+        }
+
+        .input-mode-content {
+            display: none;
+        }
+
+        .input-mode-content.active {
+            display: block;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: block;
+            width: 100%;
+        }
+
+        .file-upload-box {
+            border: 2px dashed var(--border-color);
+            background-color: var(--bg-color);
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .file-upload-box:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: rgba(139, 92, 246, 0.03);
+        }
+
+        .upload-btn-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-status {
+            font-size: 0.8rem;
+            color: #34d399;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .app-card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .app-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            object-fit: cover;
+            background-color: var(--surface-hover);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .app-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .app-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #f8fafc;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .btn-run {
+            background-color: rgba(139, 92, 246, 0.15);
+            color: #c4b5fd;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-download {
+            background-color: rgba(16, 185, 129, 0.12);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-delete {
+            background-color: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            color: var(--border-color);
+        }
+
+        nav.bottom-nav {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 30px);
+            max-width: 450px;
+            height: var(--nav-height);
+            background: rgba(18, 16, 25, 0.92);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            width: 50%;
+        }
+
+        .nav-item.active {
+            color: #c4b5fd;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+        }
+
+        #preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 12px 20px;
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #c4b5fd;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        #preview-frame {
+            flex-grow: 1;
+            width: 100%;
+            border: none;
+            background: white;
+        }
+    </style>
 </head>
-
-
 <body>
 
-
-<!-- =====================================================
-     الخلفية
-===================================================== -->
-
-<div class="background">
-
-    <img
-        src="https://i.ibb.co/RkvbkTFq/file-00000000024481f49f8ca2a5ec464909.png"
-        alt="Anime KEL Background">
-
-</div>
-
-<div class="glow-one"></div>
-<div class="glow-two"></div>
-
-
-<!-- =====================================================
-     تسجيل الدخول
-===================================================== -->
-
-<section id="login-container">
-
-    <h1 class="brand">
-        ANIME
-        <span>KEL</span>
-    </h1>
-
-    <p class="welcome">
-
-        مرحباً بك في عالم الأنمي ✨
-
-        <br>
-
-        سجّل دخولك واستمتع بعالم Anime KEL
-
-    </p>
-
-    <div class="divider">
-
-        <span>
-            تسجيل الدخول
-        </span>
-
-    </div>
-
-
-    <button
-        id="googleLoginBtn"
-        class="google-btn"
-        type="button"
-        onclick="loginWithGoogle()">
-
-        <svg
-            viewBox="0 0 24 24"
-            aria-hidden="true">
-
-            <path
-                fill="#fff"
-                d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.1 8.9 5 12 5zm6.5 7c0-.4-.1-.9-.2-1.3H12v2.6h3.6c-.2 1-.8 1.8-1.7 2.4l2.7 2.1c1.6-1.5 2.6-3.7 2.6-6.8zM5.3 14.8c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2L1.6 7.9C.6 9.9 0 12.1 0 14.5s.6 4.6 1.6 6.6l3.7-2.9c.9.5 2 0 3.4.5zm6.7 8.2c3.2 0 6-1.1 8-3l-2.7-2.1c-1.1.7-2.5 1.2-5.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.9C3.5 20.4 7.4 23 12 23z"/>
-
-        </svg>
-
-        <span id="googleBtnText">
-            تسجيل الدخول بواسطة جوجل
-        </span>
-
-    </button>
-
-
-    <p class="login-note">
-
-        تسجيل الدخول متاح بواسطة حساب Google فقط.
-
-    </p>
-
-
-    <div id="error-box"></div>
-
-</section>
-
-
-<!-- =====================================================
-     نافذة إنشاء كلمة المرور الإجبارية
-===================================================== -->
-
-<div id="passwordSetupModal">
-    <div class="modal-box">
-        <h3>أنشئ كلمة مرور لحسابك 🔐</h3>
-        <p>لحماية حسابك وتسهيل دخولك في المرات القادمة، يرجى إنشاء كلمة مرور خاصة بك:</p>
-        
-        <input type="password" id="newPasswordInput" class="modal-input" placeholder="أدخل كلمة المرور (6 أحرف على الأقل)">
-        
-        <button class="modal-btn" type="button" onclick="saveUserPassword()">حفظ ومتابعة حياتك 😎</button>
-        
-        <div id="modal-error"></div>
-    </div>
-</div>
-
-
-<!-- =====================================================
-     التطبيق
-===================================================== -->
-
-<main id="app-content">
-
-
-    <!-- =================================================
-         الهيدر
-    ================================================== -->
-
-    <header class="top-bar">
-
-        <div class="app-logo">
-
-            ANIME <span>KEL</span>
-
-        </div>
-
-
-        <button
-            class="logout-btn"
-            type="button"
-            onclick="logout()">
-
-            تسجيل الخروج
-
-        </button>
-
+    <header>
+        <h1><i class="fa-solid fa-code-merge"></i> منصة صانع وتثبيت تطبيقات النيون</h1>
     </header>
 
+    <div class="container">
+        <!-- قسم العرض والتثبيت -->
+        <section id="view-section" class="view-section active">
+            <div id="apps-container" class="apps-grid"></div>
+        </section>
 
-    <!-- =================================================
-         محتوى الموقع
-    ================================================== -->
+        <!-- قسم الصنع -->
+        <section id="create-section" class="view-section">
+            <div class="card-form">
+                <form id="app-form" onsubmit="saveApp(event)">
+                    <div class="form-group">
+                        <label class="title-label" for="appName">اسم التطبيق</label>
+                        <input type="text" id="appName" class="form-control" placeholder="مثال: لعبتي الذكية" required>
+                    </div>
 
-    <section class="page-view">
+                    <div class="form-group">
+                        <label class="title-label">صورة أيقونة التطبيق (من المعرض)</label>
+                        <div class="upload-btn-wrapper">
+                            <div class="file-upload-box">
+                                <i class="fa-solid fa-image"></i>
+                                <span id="icon-file-label">اختر صورة من الاستوديو</span>
+                            </div>
+                            <input type="file" id="appIconFile" accept="image/*" onchange="handleIconUpload(event)" required>
+                        </div>
+                        <span id="icon-status" class="file-status" style="display:none;">تم اختيار الصورة بنجاح ✓</span>
+                    </div>
 
-        <div class="page-box">
+                    <div class="form-group">
+                        <label class="title-label">مصدر كود التطبيق</label>
+                        <div class="mode-switcher">
+                            <button type="button" class="mode-btn active" id="btn-mode-file" onclick="setHtmlInputMode('file')">
+                                <i class="fa-solid fa-file-arrow-up"></i> رفع ملف index.html
+                            </button>
+                            <button type="button" class="mode-btn" id="btn-mode-code" onclick="setHtmlInputMode('code')">
+                                <i class="fa-solid fa-keyboard"></i> كتابة / لصق الكود
+                            </button>
+                        </div>
 
-            <div
-                class="page-icon"
-                id="page-icon">
+                        <div id="mode-file-content" class="input-mode-content active">
+                            <div class="upload-btn-wrapper">
+                                <div class="file-upload-box">
+                                    <i class="fa-solid fa-file-code"></i>
+                                    <span id="html-file-label">اختر ملف index.html من ملفاتك</span>
+                                </div>
+                                <input type="file" id="appHtmlFile" accept=".html,.htm" onchange="handleHtmlUpload(event)">
+                            </div>
+                            <span id="html-status" class="file-status" style="display:none;">تم تحميل كود الملف بنجاح ✓</span>
+                        </div>
 
-                🏠
+                        <div id="mode-code-content" class="input-mode-content">
+                            <textarea id="appHtmlCodeText" class="form-control" placeholder="<!DOCTYPE html>&#10;<html>&#10;<head><style>/* CSS هنا */</style></head>&#10;<body>&#10;  <!-- HTML & JS هنا -->&#10;</body>&#10;</html>"></textarea>
+                        </div>
+                    </div>
 
+                    <button type="submit" class="btn-primary">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> إنشاء وتثبيت التطبيق
+                    </button>
+                </form>
             </div>
+        </section>
+    </div>
 
-
-            <h2
-                class="page-title"
-                id="page-title">
-
-                الرئيسية
-
-            </h2>
-
-
-            <p
-                class="page-subtitle"
-                id="page-subtitle">
-
-                مرحباً بك في عالم Anime KEL ✨
-
-            </p>
-
+    <!-- نافذة المعاينة -->
+    <div id="preview-modal">
+        <div class="modal-header">
+            <span class="modal-title" id="modal-app-name">معاينة التطبيق</span>
+            <button class="btn-close" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
-    </section>
-
-
-</main>
-
-
-
-<!-- =====================================================
-     القائمة السفلية
-===================================================== -->
-
-<nav
-    id="bottomNavbar"
-    class="navbar"
-    aria-label="القائمة الرئيسية">
-
-
-    <!-- =================================================
-         1 - الرئيسية
-    ================================================== -->
-
-    <button
-        class="nav-item active"
-        type="button"
-        onclick="switchPage(
-            'الرئيسية',
-            '🏠',
-            'مرحباً بك في عالم Anime KEL ✨',
-            this
-        )">
-
-        <svg viewBox="0 0 24 24">
-
-            <path
-                d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-
-            <polyline
-                points="9 22 9 12 15 12 15 22"/>
-
-        </svg>
-
-        <span>
-            الرئيسية
-        </span>
-
-    </button>
-
-
-
-    <!-- =================================================
-         2 - قوائم التشغيل
-    ================================================== -->
-
-    <button
-        class="nav-item"
-        type="button"
-        onclick="switchPage(
-            'قوائم التشغيل',
-            '▶️',
-            'أنشئ قوائم الأنمي المفضلة لديك ✨',
-            this
-        )">
-
-        <svg viewBox="0 0 24 24">
-
-            <circle
-                cx="12"
-                cy="12"
-                r="10"/>
-
-            <polygon
-                points="10 8 16 12 10 16 10 8"/>
-
-        </svg>
-
-        <span>
-            قوائم التشغيل
-        </span>
-
-    </button>
-
-
-
-    <!-- =================================================
-         3 - المفضلة
-    ================================================== -->
-
-    <button
-        class="nav-item"
-        type="button"
-        onclick="switchPage(
-            'المفضلة',
-            '❤️',
-            'الأنميات التي أضفتها إلى المفضلة ✨',
-            this
-        )">
-
-        <svg viewBox="0 0 24 24">
-
-            <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-
-        </svg>
-
-        <span>
-            المفضلة
-        </span>
-
-    </button>
-
-
-
-    <!-- =================================================
-         4 - النجوم
-    ================================================== -->
-
-    <button
-        class="nav-item"
-        type="button"
-        onclick="switchPage(
-            'النجوم',
-            '⭐',
-            'تقييمات ونجوم Anime KEL ⭐',
-            this
-        )">
-
-        <svg viewBox="0 0 24 24">
-
-            <polygon
-                points="
-                12 2
-                15.09 8.26
-                22 9.27
-                17 14.14
-                18.18 21.02
-                12 17.77
-                5.82 21.02
-                7 14.14
-                2 9.27
-                8.91 8.26
-                12 2"/>
-
-        </svg>
-
-        <span>
-            النجوم
-        </span>
-
-    </button>
-
-
-
-    <!-- =================================================
-         5 - الملف الشخصي
-    ================================================== -->
-
-    <button
-        class="nav-item"
-        type="button"
-        onclick="switchPage(
-            'الملف الشخصي',
-            '👤',
-            'معلومات حسابك وملفك الشخصي ✨',
-            this
-        )">
-
-        <svg viewBox="0 0 24 24">
-
-            <path
-                d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-
-            <circle
-                cx="12"
-                cy="7"
-                r="4"/>
-
-        </svg>
-
-        <span>
-            الملف الشخصي
-        </span>
-
-    </button>
-
-
-</nav>
-
-
-
-<script>
-
-/* =====================================================
-   إعدادات Supabase
-===================================================== */
-
-const SUPABASE_URL =
-    "https://qpjgaiivqokcmhaqqmid.supabase.co";
-
-const SUPABASE_KEY =
-    "sb_publishable_sKqO5UQYFye0TdNCz39g-Q_rhH_s1Q4";
-
-
-/* =====================================================
-   متغير Supabase
-===================================================== */
-
-let supabaseClient = null;
-
-
-/* =====================================================
-   عناصر الصفحة
-===================================================== */
-
-const loginContainer =
-    document.getElementById(
-        "login-container"
-    );
-
-const passwordSetupModal =
-    document.getElementById(
-        "passwordSetupModal"
-    );
-
-const appContent =
-    document.getElementById(
-        "app-content"
-    );
-
-const bottomNavbar =
-    document.getElementById(
-        "bottomNavbar"
-    );
-
-const errorBox =
-    document.getElementById(
-        "error-box"
-    );
-
-const modalError =
-    document.getElementById(
-        "modal-error"
-    );
-
-const googleLoginBtn =
-    document.getElementById(
-        "googleLoginBtn"
-    );
-
-const googleBtnText =
-    document.getElementById(
-        "googleBtnText"
-    );
-
-const pageTitle =
-    document.getElementById(
-        "page-title"
-    );
-
-const pageIcon =
-    document.getElementById(
-        "page-icon"
-    );
-
-const pageSubtitle =
-    document.getElementById(
-        "page-subtitle"
-    );
-
-
-/* =====================================================
-   إظهار الخطأ
-===================================================== */
-
-function showError(message){
-
-    errorBox.style.display =
-        "block";
-
-    errorBox.textContent =
-        message;
-}
-
-
-/* =====================================================
-   إخفاء الخطأ
-===================================================== */
-
-function hideError(){
-
-    errorBox.style.display =
-        "none";
-
-    errorBox.textContent =
-        "";
-}
-
-
-/* =====================================================
-   إظهار تسجيل الدخول
-===================================================== */
-
-function showLogin(){
-
-    loginContainer.style.display =
-        "block";
-
-    passwordSetupModal.style.display =
-        "none";
-
-    appContent.style.display =
-        "none";
-
-    bottomNavbar.style.display =
-        "none";
-}
-
-
-/* =====================================================
-   إظهار التطبيق الرئيسي
-===================================================== */
-
-function showApp(){
-
-    loginContainer.style.display =
-        "none";
-
-    passwordSetupModal.style.display =
-        "none";
-
-    appContent.style.display =
-        "flex";
-
-    bottomNavbar.style.display =
-        "flex";
-}
-
-
-/* =====================================================
-   إظهار نافذة إنشاء كلمة المرور
-===================================================== */
-
-function showPasswordModal(){
-
-    loginContainer.style.display =
-        "none";
-
-    appContent.style.display =
-        "none";
-
-    bottomNavbar.style.display =
-        "none";
-
-    passwordSetupModal.style.display =
-        "flex";
-}
-
-
-/* =====================================================
-   فحص حالة كلمة المرور للمستخدم
-===================================================== */
-
-async function checkUserPasswordStatus(user){
-
-    try{
-
-        const { data, error } =
-            await supabaseClient
-                .from('profiles')
-                .select('has_password')
-                .eq('id', user.id)
-                .single();
-
-        if(!data || !data.has_password){
-            showPasswordModal();
-        } else {
-            showApp();
+        <iframe id="preview-frame"></iframe>
+    </div>
+
+    <!-- القائمة السفلية -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('view', this)">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>العرض والتثبيت</span>
+        </button>
+        <button class="nav-item" onclick="switchTab('create', this)">
+            <i class="fa-solid fa-plus-circle"></i>
+            <span>الصنع</span>
+        </button>
+    </nav>
+
+    <script>
+        let selectedIconBase64 = '';
+        let uploadedHtmlCode = '';
+        let currentInputMode = 'file';
+
+        function switchTab(tabName, btnElement) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+
+            if (tabName === 'view') {
+                document.getElementById('view-section').classList.add('active');
+                loadApps();
+            } else {
+                document.getElementById('create-section').classList.add('active');
+            }
+            btnElement.classList.add('active');
         }
 
-    } catch(err){
-        console.error("Profile check error:", err);
-        showPasswordModal();
-    }
+        function setHtmlInputMode(mode) {
+            currentInputMode = mode;
+            const btnFile = document.getElementById('btn-mode-file');
+            const btnCode = document.getElementById('btn-mode-code');
+            const contentFile = document.getElementById('mode-file-content');
+            const contentCode = document.getElementById('mode-code-content');
 
-}
-
-
-/* =====================================================
-   حفظ كلمة المرور الجديدة (تم إصلاح مشكلة Auth session missing نهائياً)
-===================================================== */
-
-async function saveUserPassword(){
-
-    const passwordInput =
-        document.getElementById("newPasswordInput").value;
-
-    modalError.style.display = "none";
-
-    if(!passwordInput || passwordInput.length < 6){
-        modalError.style.display = "block";
-        modalError.textContent = "يجب أن تكون كلمة المرور 6 أحرف أو أرقام على الأقل!";
-        return;
-    }
-
-    try{
-
-        // 1. جلب المستخدم الحالي مباشرة والتأكد من توفر الجلسة
-        const { data: { user }, error: userError } =
-            await supabaseClient.auth.getUser();
-
-        if(userError || !user){
-            throw new Error("جلسة المستخدم غير موجودة، يرجى إعادة تسجيل الدخول.");
+            if (mode === 'file') {
+                btnFile.classList.add('active');
+                btnCode.classList.remove('active');
+                contentFile.classList.add('active');
+                contentCode.classList.remove('active');
+            } else {
+                btnCode.classList.add('active');
+                btnFile.classList.remove('active');
+                contentCode.classList.add('active');
+                contentFile.classList.remove('active');
+            }
         }
 
-        // 2. تحديث كلمة المرور في Supabase Auth
-        const { error: updateError } =
-            await supabaseClient.auth.updateUser({
-                password: passwordInput
-            });
+        function handleIconUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('icon-file-label').innerText = file.name;
+            document.getElementById('icon-status').style.display = 'block';
 
-        if(updateError) throw updateError;
-
-        // 3. تحديث الجدول
-        const { error: profileError } =
-            await supabaseClient
-                .from('profiles')
-                .upsert({
-                    id: user.id,
-                    has_password: true
-                });
-
-        if(profileError){
-            console.warn("Profile upsert warning:", profileError.message);
+            const reader = new FileReader();
+            reader.onload = function(e) { selectedIconBase64 = e.target.result; };
+            reader.readAsDataURL(file);
         }
 
-        alert("تم حفظ كلمة المرور بنجاح! أكمل حياتك بكل اطمئنان 🎉");
-        showApp();
+        function handleHtmlUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('html-file-label').innerText = file.name;
+            document.getElementById('html-status').style.display = 'block';
 
-    } catch(error){
+            const reader = new FileReader();
+            reader.onload = function(e) { uploadedHtmlCode = e.target.result; };
+            reader.readAsText(file);
+        }
 
-        console.error("Save password error:", error);
+        function getApps() {
+            return JSON.parse(localStorage.getItem('neon_html_apps')) || [];
+        }
 
-        modalError.style.display = "block";
-        modalError.textContent = "حدث خطأ أثناء الحفظ:\n" + error.message;
-    }
+        function saveApp(event) {
+            event.preventDefault();
+            const name = document.getElementById('appName').value.trim();
 
-}
+            if (!selectedIconBase64) {
+                alert('يرجى اختيار صورة الأيقونة أولاً!');
+                return;
+            }
 
-
-/* =====================================================
-   تسجيل الدخول Google
-===================================================== */
-
-async function loginWithGoogle(){
-
-    hideError();
-
-    if(!supabaseClient){
-
-        showError(
-            "لم يتم الاتصال بـ Supabase."
-        );
-
-        return;
-    }
-
-
-    try{
-
-        googleLoginBtn.disabled =
-            true;
-
-        googleBtnText.textContent =
-            "جاري اختيار الحساب...";
-
-
-        const redirectUrl =
-            window.location.origin +
-            window.location.pathname;
-
-
-        const result =
-            await supabaseClient.auth.signInWithOAuth({
-
-                provider:"google",
-
-                options:{
-                    redirectTo:
-                        redirectUrl,
-                    queryParams: {
-                        prompt: 'select_account'
-                    }
+            let finalCode = '';
+            if (currentInputMode === 'file') {
+                if (!uploadedHtmlCode) {
+                    alert('يرجى اختيار ملف index.html أو التبديل لوضع كتابة الكود!');
+                    return;
                 }
-
-            });
-
-
-        if(result.error){
-
-            throw result.error;
-        }
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Google Login Error:",
-            error
-        );
-
-
-        showError(
-            "حدث خطأ أثناء تسجيل الدخول:\n" +
-            error.message
-        );
-
-
-        googleLoginBtn.disabled =
-            false;
-
-        googleBtnText.textContent =
-            "تسجيل الدخول بواسطة جوجل";
-    }
-
-}
-
-
-/* =====================================================
-   تسجيل الخروج
-===================================================== */
-
-async function logout(){
-
-    hideError();
-
-    if(!supabaseClient){
-
-        showLogin();
-
-        return;
-    }
-
-
-    try{
-
-        const result =
-            await supabaseClient.auth.signOut();
-
-
-        if(result.error){
-
-            throw result.error;
-        }
-
-
-        showLogin();
-
-
-        googleLoginBtn.disabled =
-            false;
-
-        googleBtnText.textContent =
-            "تسجيل الدخول بواسطة جوجل";
-
-
-        resetNavigation();
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Logout Error:",
-            error
-        );
-
-
-        showError(
-            "حدث خطأ أثناء تسجيل الخروج:\n" +
-            error.message
-        );
-    }
-
-}
-
-
-/* =====================================================
-   تبديل الصفحات
-===================================================== */
-
-function switchPage(
-    pageName,
-    icon,
-    subtitle,
-    element
-){
-
-    document
-        .querySelectorAll(".nav-item")
-        .forEach(function(button){
-
-            button.classList.remove(
-                "active"
-            );
-
-        });
-
-
-    element.classList.add(
-        "active"
-    );
-
-
-    pageIcon.textContent =
-        icon;
-
-    pageTitle.textContent =
-        pageName;
-
-    pageSubtitle.textContent =
-        subtitle;
-}
-
-
-/* =====================================================
-   إعادة القائمة للرئيسية
-===================================================== */
-
-function resetNavigation(){
-
-    const buttons =
-        document.querySelectorAll(
-            ".nav-item"
-        );
-
-    buttons.forEach(function(button){
-
-        button.classList.remove(
-            "active"
-        );
-
-    });
-
-
-    if(buttons.length > 0){
-
-        buttons[0].classList.add(
-            "active"
-        );
-    }
-
-
-    pageIcon.textContent =
-        "🏠";
-
-    pageTitle.textContent =
-        "الرئيسية";
-
-    pageSubtitle.textContent =
-        "مرحباً بك في عالم Anime KEL ✨";
-}
-
-
-/* =====================================================
-   تهيئة Supabase والتقاط الجلسة من الـ URL (الحل النهائي)
-===================================================== */
-
-async function initializeSupabase(){
-
-    try{
-
-        if(
-            typeof window.supabase ===
-            "undefined"
-        ){
-
-            throw new Error(
-                "مكتبة Supabase لم يتم تحميلها."
-            );
-        }
-
-        supabaseClient =
-            window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_KEY
-            );
-
-
-        // 1. فحص هل هناك توكن قادم في الرابط من Google OAuth وإلتقاطه فوراً
-        const hash = window.location.hash;
-        if (hash && hash.includes('access_token')) {
-            // محرك Supabase سيقوم تلقائياً بقراءة الـ Hash وحفظ الجلسة، نعطيها جزء من الثانية لتستقر
-            await new Promise(resolve => setTimeout(resolve, 300));
-        }
-
-
-        // 2. التحقق من الجلسة الحالية
-        const { data: { session }, error: sessionError } =
-            await supabaseClient.auth.getSession();
-
-        if(sessionError) throw sessionError;
-
-
-        if(session){
-            await checkUserPasswordStatus(session.user);
-        } else {
-            showLogin();
-        }
-
-
-        // 3. مراقبة حالة التغييرات
-        supabaseClient.auth.onAuthStateChange(
-            async function(event, session){
-                if(session){
-                    await checkUserPasswordStatus(session.user);
-                } else {
-                    showLogin();
+                finalCode = uploadedHtmlCode;
+            } else {
+                finalCode = document.getElementById('appHtmlCodeText').value;
+                if (!finalCode.trim()) {
+                    alert('يرجى كتابة أو لصق الكود في الصندوق!');
+                    return;
                 }
             }
-        );
 
-    }
+            const newApp = {
+                id: Date.now(),
+                name,
+                icon: selectedIconBase64,
+                code: finalCode
+            };
 
-    catch(error){
+            const apps = getApps();
+            apps.push(newApp);
+            localStorage.setItem('neon_html_apps', JSON.stringify(apps));
 
-        console.error(
-            "Supabase Initialization Error:",
-            error
-        );
+            document.getElementById('app-form').reset();
+            selectedIconBase64 = '';
+            uploadedHtmlCode = '';
+            document.getElementById('icon-file-label').innerText = 'اختر صورة من الاستوديو';
+            document.getElementById('icon-status').style.display = 'none';
+            document.getElementById('html-file-label').innerText = 'اختر ملف index.html من ملفاتك';
+            document.getElementById('html-status').style.display = 'none';
+            setHtmlInputMode('file');
 
+            switchTab('view', document.querySelectorAll('.nav-item')[0]);
+        }
 
-        showError(
-            "تعذر الاتصال بـ Supabase:\n" +
-            error.message
-        );
+        function loadApps() {
+            const apps = getApps();
+            const container = document.getElementById('apps-container');
 
+            if (apps.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-box-open"></i>
+                        <p>لا توجد تطبيقات صنعتها بعد!</p>
+                        <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text-muted);">انتقل إلى قسم "الصنع" لإنشاء أول تطبيق لك.</p>
+                    </div>
+                `;
+                return;
+            }
 
-        showLogin();
-    }
+            container.innerHTML = '';
+            apps.forEach(app => {
+                const card = document.createElement('div');
+                card.className = 'app-card';
+                card.innerHTML = `
+                    <img src="${app.icon}" class="app-icon" alt="Icon">
+                    <div class="app-info">
+                        <div class="app-name">${escapeHtml(app.name)}</div>
+                        <div class="app-actions">
+                            <button class="btn-action btn-run" onclick="runApp(${app.id})">
+                                <i class="fa-solid fa-play"></i> تشغيل
+                            </button>
+                            <button class="btn-action btn-download" onclick="downloadApp(${app.id})">
+                                <i class="fa-solid fa-download"></i> تثبيت/حفظ
+                            </button>
+                            <button class="btn-action btn-delete" onclick="deleteApp(${app.id})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
 
-}
+        function runApp(id) {
+            const apps = getApps();
+            const app = apps.find(a => a.id === id);
+            if (!app) return;
+            document.getElementById('modal-app-name').innerText = app.name;
+            const iframe = document.getElementById('preview-frame');
+            iframe.srcdoc = app.code;
+            document.getElementById('preview-modal').style.display = 'flex';
+        }
 
+        function closePreview() {
+            document.getElementById('preview-modal').style.display = 'none';
+            document.getElementById('preview-frame').srcdoc = '';
+        }
 
-/* =====================================================
-   بدء الموقع
-===================================================== */
+        // تم تعيين اسم الملف ليطابق اسم التطبيق الحقيقي تماماً
+        function downloadApp(id) {
+            const apps = getApps();
+            const app = apps.find(a => a.id === id);
+            if (!app) return;
 
-showLogin();
+            const blob = new Blob([app.code], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            // تنظيف اسم الملف من الرموز والمسافات غير المسموحة
+            const safeName = app.name.replace(/[/\\?%*:|"<>]/g, '').trim() || 'app';
+            a.download = `${safeName}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
 
-initializeSupabase();
+        function deleteApp(id) {
+            if (confirm('هل أنت متأكد من حذف هذا التطبيق؟')) {
+                let apps = getApps();
+                apps = apps.filter(a => a.id !== id);
+                localStorage.setItem('neon_html_apps', JSON.stringify(apps));
+                loadApps();
+            }
+        }
 
-</script>
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
 
+        window.onload = loadApps;
+    </script>
 </body>
-
 </html>
