@@ -3,22 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة صانع وتثبيت تطبيقات النيون</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>AnimeKEL // Code Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+    <!-- استخدام أحدث إصدار مستقر من سوبابيس لتجنب مشاكل الاتصال -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-color: #08070b;
-            --surface-color: #121019;
-            --surface-hover: #1c1826;
-            --primary-color: #8b5cf6;
-            --primary-hover: #7c3aed;
-            --accent-glow: rgba(139, 92, 246, 0.25);
+            --bg-deep: #05050a;
+            --bg-card: rgba(13, 15, 33, 0.85);
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff0055;
+            --neon-purple: #9d00ff;
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
-            --border-color: #262138;
-            --nav-height: 70px;
+            --border-glow: rgba(0, 243, 255, 0.3);
         }
 
         * {
@@ -26,667 +24,401 @@
             margin: 0;
             padding: 0;
             font-family: 'Cairo', sans-serif;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(157, 0, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 243, 255, 0.1) 0%, transparent 40%);
             color: var(--text-main);
             min-height: 100vh;
-            padding-bottom: calc(var(--nav-height) + 25px);
-        }
-
-        header {
-            background: rgba(18, 16, 25, 0.85);
-            backdrop-filter: blur(12px);
-            padding: 16px 20px;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        header h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #c4b5fd;
-            text-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+            padding-bottom: 40px;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        .view-section {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .view-section.active {
-            display: block;
+        .app-header h1 {
+            font-size: 22px;
+            background: linear-gradient(45deg, var(--neon-cyan), #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
-        .card-form {
-            background-color: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 18px;
-            padding: 22px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label.title-label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-muted);
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 243, 255, 0.1);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-info img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.4);
+        }
+
+        .author-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .post-date {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .lang-badge {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
         }
 
-        .form-control {
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--neon-cyan);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"], select, textarea {
             width: 100%;
-            padding: 12px 16px;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
+            padding: 14px 16px;
+            background: rgba(5, 5, 10, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
             border-radius: 12px;
-            color: var(--text-main);
-            font-size: 0.95rem;
+            font-size: 15px;
             outline: none;
             transition: all 0.3s;
         }
 
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--accent-glow);
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
         }
 
-        textarea.form-control {
-            resize: vertical;
-            min-height: 160px;
-            font-family: monospace;
-            direction: ltr;
-            text-align: left;
-        }
-
-        .mode-switcher {
-            display: flex;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 15px;
-        }
-
-        .mode-btn {
-            flex: 1;
-            background: none;
-            border: none;
-            padding: 10px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .mode-btn.active {
-            background: var(--primary-color);
-            color: white;
-            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
-        }
-
-        .input-mode-content {
-            display: none;
-        }
-
-        .input-mode-content.active {
-            display: block;
-        }
-
-        .upload-btn-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: block;
-            width: 100%;
-        }
-
-        .file-upload-box {
-            border: 2px dashed var(--border-color);
-            background-color: var(--bg-color);
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            font-weight: 600;
-            width: 100%;
-        }
-
-        .file-upload-box:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            background-color: rgba(139, 92, 246, 0.03);
-        }
-
-        .upload-btn-wrapper input[type="file"] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-status {
-            font-size: 0.8rem;
-            color: #34d399;
-            margin-top: 6px;
-            display: block;
-        }
-
-        .btn-primary {
+        .neon-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-            color: white;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #05050a;
             border: none;
             border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.3s;
-            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+            text-transform: uppercase;
         }
 
-        .btn-primary:active {
-            transform: scale(0.98);
+        .neon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.8);
         }
 
-        .apps-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
+        .code-box-wrapper {
+            position: relative;
+            margin: 15px 0;
         }
 
-        .app-card {
-            background-color: var(--surface-color);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        pre {
+            background: #020408;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 15px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            max-height: 250px;
         }
 
-        .app-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 14px;
-            object-fit: cover;
-            background-color: var(--surface-hover);
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--primary-color);
-            border: 1px solid var(--border-color);
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #38bdf8;
         }
 
-        .app-info {
-            flex-grow: 1;
-            min-width: 0;
-        }
-
-        .app-name {
-            font-size: 1.05rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: #f8fafc;
-        }
-
-        .app-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn-action {
-            padding: 6px 12px;
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            padding: 8px 16px;
             border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: none;
             cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            text-decoration: none;
+            gap: 6px;
+            transition: 0.2s;
         }
 
-        .btn-run {
-            background-color: rgba(139, 92, 246, 0.15);
-            color: #c4b5fd;
-            border: 1px solid rgba(139, 92, 246, 0.3);
+        .copy-btn:hover {
+            background: var(--neon-cyan);
+            color: #05050a;
+            border-color: var(--neon-cyan);
         }
 
-        .btn-download {
-            background-color: rgba(16, 185, 129, 0.12);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-delete {
-            background-color: rgba(239, 68, 68, 0.12);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-muted);
-        }
-
-        .empty-state i {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
-            color: var(--border-color);
-        }
-
-        nav.bottom-nav {
-            position: fixed;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 30px);
-            max-width: 450px;
-            height: var(--nav-height);
-            background: rgba(18, 16, 25, 0.92);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-        }
-
-        .nav-item {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            width: 50%;
-        }
-
-        .nav-item.active {
-            color: #c4b5fd;
-            text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
-        }
-
-        #preview-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--bg-color);
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            padding: 12px 20px;
-            background-color: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #c4b5fd;
-        }
-
-        .btn-close {
-            background: none;
-            border: none;
-            color: var(--text-main);
-            font-size: 1.25rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        #preview-frame {
-            flex-grow: 1;
-            width: 100%;
-            border: none;
-            background: white;
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1><i class="fa-solid fa-code-merge"></i> منصة صانع وتثبيت تطبيقات النيون</h1>
-    </header>
-
     <div class="container">
-        <!-- قسم العرض والتثبيت -->
-        <section id="view-section" class="view-section active">
-            <div id="apps-container" class="apps-grid"></div>
-        </section>
-
-        <!-- قسم الصنع -->
-        <section id="create-section" class="view-section">
-            <div class="card-form">
-                <form id="app-form" onsubmit="saveApp(event)">
-                    <div class="form-group">
-                        <label class="title-label" for="appName">اسم التطبيق</label>
-                        <input type="text" id="appName" class="form-control" placeholder="مثال: لعبتي الذكية" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="title-label">صورة أيقونة التطبيق (من المعرض)</label>
-                        <div class="upload-btn-wrapper">
-                            <div class="file-upload-box">
-                                <i class="fa-solid fa-image"></i>
-                                <span id="icon-file-label">اختر صورة من الاستوديو</span>
-                            </div>
-                            <input type="file" id="appIconFile" accept="image/*" onchange="handleIconUpload(event)" required>
-                        </div>
-                        <span id="icon-status" class="file-status" style="display:none;">تم اختيار الصورة بنجاح ✓</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="title-label">مصدر كود التطبيق</label>
-                        <div class="mode-switcher">
-                            <button type="button" class="mode-btn active" id="btn-mode-file" onclick="setHtmlInputMode('file')">
-                                <i class="fa-solid fa-file-arrow-up"></i> رفع ملف index.html
-                            </button>
-                            <button type="button" class="mode-btn" id="btn-mode-code" onclick="setHtmlInputMode('code')">
-                                <i class="fa-solid fa-keyboard"></i> كتابة / لصق الكود
-                            </button>
-                        </div>
-
-                        <div id="mode-file-content" class="input-mode-content active">
-                            <div class="upload-btn-wrapper">
-                                <div class="file-upload-box">
-                                    <i class="fa-solid fa-file-code"></i>
-                                    <span id="html-file-label">اختر ملف index.html من ملفاتك</span>
-                                </div>
-                                <input type="file" id="appHtmlFile" accept=".html,.htm" onchange="handleHtmlUpload(event)">
-                            </div>
-                            <span id="html-status" class="file-status" style="display:none;">تم تحميل كود الملف بنجاح ✓</span>
-                        </div>
-
-                        <div id="mode-code-content" class="input-mode-content">
-                            <textarea id="appHtmlCodeText" class="form-control" placeholder="<!DOCTYPE html>&#10;<html>&#10;<head><style>/* CSS هنا */</style></head>&#10;<body>&#10;  <!-- HTML & JS هنا -->&#10;</body>&#10;</html>"></textarea>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-primary">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> إنشاء وتثبيت التطبيق
-                    </button>
-                </form>
-            </div>
-        </section>
-    </div>
-
-    <!-- نافذة المعاينة -->
-    <div id="preview-modal">
-        <div class="modal-header">
-            <span class="modal-title" id="modal-app-name">معاينة التطبيق</span>
-            <button class="btn-close" onclick="closePreview()"><i class="fa-solid fa-xmark"></i></button>
+        <div class="app-header">
+            <h1>AnimeKEL // Code Nexus</h1>
+            <span style="font-size: 12px; color: var(--neon-cyan); background: rgba(0,243,255,0.1); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(0,243,255,0.3);">متصل بالسيرفر ⚡</span>
         </div>
-        <iframe id="preview-frame"></iframe>
-    </div>
 
-    <!-- القائمة السفلية -->
-    <nav class="bottom-nav">
-        <button class="nav-item active" onclick="switchTab('view', this)">
-            <i class="fa-solid fa-layer-group"></i>
-            <span>العرض والتثبيت</span>
-        </button>
-        <button class="nav-item" onclick="switchTab('create', this)">
-            <i class="fa-solid fa-plus-circle"></i>
-            <span>الصنع</span>
-        </button>
-    </nav>
+        <div class="nav-tabs">
+            <button id="tab-home" onclick="switchTab('home')" class="tab-btn active">الرئيسية (المنشورات)</button>
+            <button id="tab-add" onclick="switchTab('add')" class="tab-btn">+ نشر كود جديد</button>
+        </div>
+
+        <div id="section-home">
+            <div id="posts-container"></div>
+        </div>
+
+        <div id="section-add" class="hidden">
+            <div class="post-card">
+                <h3 style="margin-bottom: 15px; color: var(--neon-cyan);">مشاركة شفرة برمجية جديدة</h3>
+                <div class="input-group">
+                    <label>اسمك أو لقبك البرمجي</label>
+                    <input type="text" id="post-author" placeholder="اكتب اسمك هنا...">
+                </div>
+                <div class="input-group">
+                    <label>لغة البرمجة</label>
+                    <select id="post-lang">
+                        <option value="Python">Python</option>
+                        <option value="HTML">HTML / CSS</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="C++">C++</option>
+                        <option value="Other">أخرى</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>الكود البرمجي</label>
+                    <textarea id="post-code" rows="10" placeholder="// الصق كودك هنا بكل حرية..."></textarea>
+                </div>
+                <button class="neon-btn" id="publish-btn" onclick="publishPost()">نشر الآن 🚀</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        let selectedIconBase64 = '';
-        let uploadedHtmlCode = '';
-        let currentInputMode = 'file';
+        const SUPABASE_URL = 'https://kuugumwfczbeaoqzwxjh.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_XPhRmT5SaYRLl9b0oByzWw_FXw64hs6';
+        
+        // تهيئة سوبابيس بالإصدار الثاني الحديث
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function switchTab(tabName, btnElement) {
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+        let globalPosts = [];
 
-            if (tabName === 'view') {
-                document.getElementById('view-section').classList.add('active');
-                loadApps();
+        window.onload = function() {
+            loadPosts();
+        };
+
+        function switchTab(tab) {
+            if (tab === 'home') {
+                document.getElementById('section-home').classList.remove('hidden');
+                document.getElementById('section-add').classList.add('hidden');
+                document.getElementById('tab-home').classList.add('active');
+                document.getElementById('tab-add').classList.remove('active');
+                loadPosts();
             } else {
-                document.getElementById('create-section').classList.add('active');
-            }
-            btnElement.classList.add('active');
-        }
-
-        function setHtmlInputMode(mode) {
-            currentInputMode = mode;
-            const btnFile = document.getElementById('btn-mode-file');
-            const btnCode = document.getElementById('btn-mode-code');
-            const contentFile = document.getElementById('mode-file-content');
-            const contentCode = document.getElementById('mode-code-content');
-
-            if (mode === 'file') {
-                btnFile.classList.add('active');
-                btnCode.classList.remove('active');
-                contentFile.classList.add('active');
-                contentCode.classList.remove('active');
-            } else {
-                btnCode.classList.add('active');
-                btnFile.classList.remove('active');
-                contentCode.classList.add('active');
-                contentFile.classList.remove('active');
+                document.getElementById('section-home').classList.add('hidden');
+                document.getElementById('section-add').classList.remove('hidden');
+                document.getElementById('tab-add').classList.add('active');
+                document.getElementById('tab-home').classList.remove('active');
             }
         }
 
-        function handleIconUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            document.getElementById('icon-file-label').innerText = file.name;
-            document.getElementById('icon-status').style.display = 'block';
+        async function publishPost() {
+            const authorInput = document.getElementById('post-author').value.trim();
+            const author = authorInput !== "" ? authorInput : "مبرمج مجهول";
+            const lang = document.getElementById('post-lang').value;
+            const code = document.getElementById('post-code').value;
+            const btn = document.getElementById('publish-btn');
 
-            const reader = new FileReader();
-            reader.onload = function(e) { selectedIconBase64 = e.target.result; };
-            reader.readAsDataURL(file);
-        }
-
-        function handleHtmlUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            document.getElementById('html-file-label').innerText = file.name;
-            document.getElementById('html-status').style.display = 'block';
-
-            const reader = new FileReader();
-            reader.onload = function(e) { uploadedHtmlCode = e.target.result; };
-            reader.readAsText(file);
-        }
-
-        function getApps() {
-            return JSON.parse(localStorage.getItem('neon_html_apps')) || [];
-        }
-
-        function saveApp(event) {
-            event.preventDefault();
-            const name = document.getElementById('appName').value.trim();
-
-            if (!selectedIconBase64) {
-                alert('يرجى اختيار صورة الأيقونة أولاً!');
+            if (!code.trim()) {
+                alert("لا يمكن نشر كود فارغ!");
                 return;
             }
 
-            let finalCode = '';
-            if (currentInputMode === 'file') {
-                if (!uploadedHtmlCode) {
-                    alert('يرجى اختيار ملف index.html أو التبديل لوضع كتابة الكود!');
+            btn.innerText = "جاري الإرسال للسيرفر...";
+            btn.disabled = true;
+
+            const avatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(author)}`;
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .insert([
+                        { 
+                            author: author, 
+                            avatar: avatar, 
+                            language: lang, 
+                            code: code 
+                        }
+                    ]);
+
+                if (error) {
+                    console.error("Supabase Error:", error);
+                    alert("خطأ من السيرفر: " + error.message);
+                    btn.innerText = "نشر الآن 🚀";
+                    btn.disabled = false;
                     return;
                 }
-                finalCode = uploadedHtmlCode;
-            } else {
-                finalCode = document.getElementById('appHtmlCodeText').value;
-                if (!finalCode.trim()) {
-                    alert('يرجى كتابة أو لصق الكود في الصندوق!');
-                    return;
-                }
+
+                document.getElementById('post-code').value = '';
+                document.getElementById('post-author').value = '';
+                btn.innerText = "نشر الآن 🚀";
+                btn.disabled = false;
+                
+                // الانتقال للرئيسية وعرض المنشورات فوراً
+                switchTab('home');
+            } catch (err) {
+                console.error("Network Error:", err);
+                alert("فشل الاتصال بالخادم، تحقق من الانترنت أو صلاحيات الجدول.");
+                btn.innerText = "نشر الآن 🚀";
+                btn.disabled = false;
             }
-
-            const newApp = {
-                id: Date.now(),
-                name,
-                icon: selectedIconBase64,
-                code: finalCode
-            };
-
-            const apps = getApps();
-            apps.push(newApp);
-            localStorage.setItem('neon_html_apps', JSON.stringify(apps));
-
-            document.getElementById('app-form').reset();
-            selectedIconBase64 = '';
-            uploadedHtmlCode = '';
-            document.getElementById('icon-file-label').innerText = 'اختر صورة من الاستوديو';
-            document.getElementById('icon-status').style.display = 'none';
-            document.getElementById('html-file-label').innerText = 'اختر ملف index.html من ملفاتك';
-            document.getElementById('html-status').style.display = 'none';
-            setHtmlInputMode('file');
-
-            switchTab('view', document.querySelectorAll('.nav-item')[0]);
         }
 
-        function loadApps() {
-            const apps = getApps();
-            const container = document.getElementById('apps-container');
+        async function loadPosts() {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 20px;">جاري جلب الأكواد من السيرفر...</p>`;
 
-            if (apps.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fa-solid fa-box-open"></i>
-                        <p>لا توجد تطبيقات صنعتها بعد!</p>
-                        <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text-muted);">انتقل إلى قسم "الصنع" لإنشاء أول تطبيق لك.</p>
-                    </div>
-                `;
-                return;
-            }
+            try {
+                const { data: posts, error } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .order('created_at', { ascending: false });
 
-            container.innerHTML = '';
-            apps.forEach(app => {
-                const card = document.createElement('div');
-                card.className = 'app-card';
-                card.innerHTML = `
-                    <img src="${app.icon}" class="app-icon" alt="Icon">
-                    <div class="app-info">
-                        <div class="app-name">${escapeHtml(app.name)}</div>
-                        <div class="app-actions">
-                            <button class="btn-action btn-run" onclick="runApp(${app.id})">
-                                <i class="fa-solid fa-play"></i> تشغيل
-                            </button>
-                            <button class="btn-action btn-download" onclick="downloadApp(${app.id})">
-                                <i class="fa-solid fa-download"></i> تثبيت/حفظ
-                            </button>
-                            <button class="btn-action btn-delete" onclick="deleteApp(${app.id})">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                if (error) {
+                    container.innerHTML = `<p style="text-align: center; color: var(--neon-pink); padding: 20px;">خطأ في التحميل: ${error.message}</p>`;
+                    return;
+                }
+
+                globalPosts = posts || [];
+
+                if (globalPosts.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                            <p style="font-size: 16px;">لا توجد منشورات برمجية حالياً.</p>
+                            <p style="font-size: 13px; margin-top: 5px;">انتقل إلى تبويب "+ نشر كود جديد" وكن أول من يشارك شيفرة!</p>
                         </div>
-                    </div>
-                `;
-                container.appendChild(card);
+                    `;
+                    return;
+                }
+
+                container.innerHTML = '';
+                globalPosts.forEach((p, index) => {
+                    const formattedDate = p.created_at ? new Date(p.created_at).toLocaleString('ar-EG', { hour: '2-digit', minute: '2-digit' }) : '';
+                    container.innerHTML += `
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="author-info">
+                                    <img src="${p.avatar}" alt="user">
+                                    <div>
+                                        <div class="author-name">${escapeHtml(p.author)}</div>
+                                        <div class="post-date">${formattedDate}</div>
+                                    </div>
+                                </div>
+                                <span class="lang-badge">${p.language}</span>
+                            </div>
+                            <div class="code-box-wrapper">
+                                <pre><code>${escapeHtml(p.code)}</code></pre>
+                            </div>
+                            <button class="copy-btn" onclick="copyCode(${index})">📋 نسخ الكود</button>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                container.innerHTML = `<p style="text-align: center; color: var(--neon-pink); padding: 20px;">تعذر الاتصال بقاعدة البيانات.</p>`;
+            }
+        }
+
+        function copyCode(index) {
+            navigator.clipboard.writeText(globalPosts[index].code).then(() => {
+                alert("✨ تم نسخ الكود بنجاح إلى الحافظة!");
             });
         }
 
-        function runApp(id) {
-            const apps = getApps();
-            const app = apps.find(a => a.id === id);
-            if (!app) return;
-            document.getElementById('modal-app-name').innerText = app.name;
-            const iframe = document.getElementById('preview-frame');
-            iframe.srcdoc = app.code;
-            document.getElementById('preview-modal').style.display = 'flex';
-        }
-
-        function closePreview() {
-            document.getElementById('preview-modal').style.display = 'none';
-            document.getElementById('preview-frame').srcdoc = '';
-        }
-
-        // تم تعيين اسم الملف ليطابق اسم التطبيق الحقيقي تماماً
-        function downloadApp(id) {
-            const apps = getApps();
-            const app = apps.find(a => a.id === id);
-            if (!app) return;
-
-            const blob = new Blob([app.code], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            // تنظيف اسم الملف من الرموز والمسافات غير المسموحة
-            const safeName = app.name.replace(/[/\\?%*:|"<>]/g, '').trim() || 'app';
-            a.download = `${safeName}.html`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        }
-
-        function deleteApp(id) {
-            if (confirm('هل أنت متأكد من حذف هذا التطبيق؟')) {
-                let apps = getApps();
-                apps = apps.filter(a => a.id !== id);
-                localStorage.setItem('neon_html_apps', JSON.stringify(apps));
-                loadApps();
-            }
-        }
-
         function escapeHtml(text) {
-            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            if (!text) return '';
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
-
-        window.onload = loadApps;
     </script>
 </body>
 </html>
